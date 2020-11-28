@@ -1,4 +1,6 @@
 import  scrapy
+from dataCrawl.items import DatacrawlItem
+from scrapy.loader import ItemLoader
 
 class crawling(scrapy.Spider):
     name = 'test'
@@ -12,10 +14,10 @@ class crawling(scrapy.Spider):
     ]
 
     def parse(self, response):
-        for item in response.xpath("//div[@class='story']"):
-            yield {
-                'name': item.xpath(".//h4[@class='story__heading']/a/@title").extract_first(),
-                'source': item.xpath(".//div[@class='story__meta']/a[@class='source']").extract_first(),
-                'relate': item.xpath(".//div[@class='story__meta']/a[@class='relate']").extract_first(),
-                'time': item.xpath(".//div[@class='story__meta']/time[@class='time friendly']").extract_first(),
-            }
+        for items in response.xpath("//div[@class='story']"):
+            l = ItemLoader(item = DatacrawlItem, selector = items )
+            l.add_xpath('name', ".//h4[@class='story__heading']/a/@title")
+            l.add_xpath('source', ".//div[@class='story__meta']/a[@class='source']")
+            l.add_xpath('relate', ".//div[@class='story__meta']/a[@class='relate']")
+            l.add_xpath('time', ".//div[@class='story__meta']/time[@class='time friendly']")
+            yield l.load_item()
